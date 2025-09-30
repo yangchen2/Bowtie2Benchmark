@@ -1,0 +1,42 @@
+name: bowtie2
+channels:
+  - qiime2
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
+  - bowtie2=2.5.4
+  - bzip2=1.0.8
+  - ca-certificates=2025.8.3
+  - icu=75.1
+  - ld_impl_linux-64=2.40
+  - libexpat=2.6.2
+  - libffi=3.4.2
+  - libgcc-ng=14.1.0
+  - libgomp=14.1.0
+  - libhwloc=2.11.1
+  - libiconv=1.17
+  - libnsl=2.0.1
+  - libsqlite=3.46.0
+  - libstdcxx-ng=14.1.0
+  - libuuid=2.38.1
+  - libxcrypt=4.4.36
+  - libxml2=2.12.7
+  - libzlib=1.3.1
+  - ncurses=6.5
+  - openssl=3.3.1
+  - perl=5.32.1
+  - pip=24.2
+  - python=3.12.5
+  - readline=8.2
+  - seqkit=2.10.1
+  - setuptools=72.1.0
+  - tbb=2021.12.0
+  - tk=8.6.13
+  - tzdata=2024a
+  - wheel=0.44.0
+  - xz=5.2.6
+  - zstd=1.5.6
+prefix: /home/yac027/mambaforge3/envs/bowtie2
