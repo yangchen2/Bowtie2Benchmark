@@ -1,0 +1,3 @@
+[submodule "bowtie2"]
+	path = bowtie2
+	url = https://github.com/sfiligoi/bowtie2.git
