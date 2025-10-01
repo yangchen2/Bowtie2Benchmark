@@ -209,3 +209,6 @@ __marimo__/
 
 # Input skin metagenome fastqs
 metaG_fastq_skin/
+slurm_out/
+sams/
+runtimes/
