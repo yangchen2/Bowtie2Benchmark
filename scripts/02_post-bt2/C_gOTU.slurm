@@ -5,8 +5,8 @@
 #              Produces *_collapsed_gOTU.biom in each TBL_DIR.
 
 #SBATCH --job-name=C_gOTU
-#SBATCH --output=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/C_gOTU_%A.out
-#SBATCH --error=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/C_gOTU_%A.err
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/C_gOTU_%A.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/C_gOTU_%A.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=04:00:00
@@ -19,7 +19,7 @@
 source activate microbiome_base
 
 # Path to script
-SCRIPT=/ddn_scratch/yac027/Bowtie2Benchmark/scripts/C_gOTU.py
+SCRIPT=/ddn_scratch/yac027/03_Bowtie2Benchmark/scripts/02_post-bt2/C_gOTU.py
 
 echo "Starting gOTU remapping at $(date)"
 python $SCRIPT

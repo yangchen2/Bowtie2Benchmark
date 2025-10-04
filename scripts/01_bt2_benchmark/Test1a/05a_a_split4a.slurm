@@ -24,10 +24,11 @@ PARTITION_DIR="/ddn_scratch/y1weng/71_db_splitting/index4"
 FASTQ_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/metaG_fastq_skin"
 OUTPUT_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/sams/Test1/05a_a_split4a"
 RUNTIME_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/runtimes/Test1"
-RUNTIME_TSV="${RUNTIME_DIR}/runtimes.tsv"
+RUNTIME_TSV="${RUNTIME_DIR}/${SLURM_JOB_NAME}.tsv"
+
 mkdir -p "$OUTPUT_DIR" "$RUNTIME_DIR"
 
-# Collect FASTQ R1 files (assuming format *_R1.fastq.gz)
+# Collect FASTQ R1 files
 FASTQ_FILES=($FASTQ_DIR/*_R1.fastq.gz)
 NUM_FILES=${#FASTQ_FILES[@]}
 
@@ -77,13 +78,21 @@ RUNTIME_HMS=$(printf "%02d:%02d:%02d" $((RUNTIME/3600)) $((RUNTIME%3600/60)) $((
 echo "Completed all partitions for $SAMPLE_NAME in ${RUNTIME_HMS}"
 
 # ----------------------------
-# Update runtimes.tsv
+# Update per-job runtimes TSV
 # ----------------------------
 if [[ ! -f "$RUNTIME_TSV" ]]; then
-    echo -e "Sample\t${SLURM_JOB_NAME}" > "$RUNTIME_TSV"
+    echo -e "Sample\tRuntime" > "$RUNTIME_TSV"
 fi
 
-if ! head -n1 "$RUNTIME_TSV" | grep -qw "${SLURM_JOB_NAME}"; then
-    sed -i "1s/$/\t${SLURM_JOB_NAME}/" "$RUNTIME_TSV"
-    awk 'NR==1{print;next}{print $0 "\t"}' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${R
+awk -v sample="$SAMPLE_NAME" -v time="$RUNTIME_HMS" '
+BEGIN{OFS="\t"}
+NR==1{print; next}
+{
+    if($1==sample){$2=time; found=1}
+    print
+}
+END{
+    if(!found) print sample, time
+}
+' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
 

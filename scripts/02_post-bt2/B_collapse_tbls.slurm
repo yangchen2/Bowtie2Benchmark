@@ -5,8 +5,8 @@
 #              into unified sample tables across all TBL_DIRS.
 
 #SBATCH --job-name=B_collapse_tbls
-#SBATCH --output=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/B_collapse_tbls_%A.out
-#SBATCH --error=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/B_collapse_tbls_%A.err
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/B_collapse_tbls_%A.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/B_collapse_tbls_%A.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=04:00:00
@@ -19,7 +19,7 @@
 source activate microbiome_base
 
 # Paths
-SCRIPT=/ddn_scratch/yac027/Bowtie2Benchmark/scripts/B_collapse_tbls.py
+SCRIPT=/ddn_scratch/yac027/03_Bowtie2Benchmark/scripts/02_post-bt2/B_collapse_tbls.py
 
 echo "Starting table collapsing at $(date)"
 python $SCRIPT

@@ -22,15 +22,15 @@ PARTITION_DIR="/ddn_scratch/y1weng/71_db_splitting/index4"
 FASTQ_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/metaG_fastq_skin"
 OUTPUT_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/sams/Test1/06a_igor_split4a"
 RUNTIME_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/runtimes/Test1"
-RUNTIME_TSV="${RUNTIME_DIR}/runtimes.tsv"
+RUNTIME_TSV="${RUNTIME_DIR}/${SLURM_JOB_NAME}.tsv"
 
 mkdir -p "$OUTPUT_DIR" "$RUNTIME_DIR"
 
-# Collect all R1 files (ending with _R1.fastq.gz)
+# Collect all R1 files
 FASTQ_FILES=($FASTQ_DIR/*_R1.fastq.gz)
 NUM_FILES=${#FASTQ_FILES[@]}
 
-# Safety check: make sure SLURM array index is valid
+# Safety check
 if [[ $SLURM_ARRAY_TASK_ID -ge $NUM_FILES ]]; then
     echo "SLURM task ID exceeds available FASTQ files. Exiting." >&2
     exit 1
@@ -39,8 +39,6 @@ fi
 # Assign R1 and R2 for this task
 R1=${FASTQ_FILES[$SLURM_ARRAY_TASK_ID]}
 R2="${R1/_R1.fastq.gz/_R2.fastq.gz}"
-
-# Extract sample name without _R1.fastq.gz suffix
 SAMPLE_NAME=$(basename "$R1" _R1.fastq.gz)
 
 echo "Running Igor Bowtie2 on sample $SAMPLE_NAME"
@@ -84,34 +82,21 @@ RUNTIME_HMS=$(printf "%02d:%02d:%02d" $((RUNTIME/3600)) $((RUNTIME%3600/60)) $((
 echo "Completed all partitions for $SAMPLE_NAME in ${RUNTIME_HMS}"
 
 # ----------------------------
-# Update runtimes.tsv
+# Update per-job runtimes TSV
 # ----------------------------
 if [[ ! -f "$RUNTIME_TSV" ]]; then
-    echo -e "Sample\t${SLURM_JOB_NAME}" > "$RUNTIME_TSV"
+    echo -e "Sample\tRuntime" > "$RUNTIME_TSV"
 fi
 
-if ! head -n1 "$RUNTIME_TSV" | grep -qw "${SLURM_JOB_NAME}"; then
-    sed -i "1s/$/\t${SLURM_JOB_NAME}/" "$RUNTIME_TSV"
-    awk 'NR==1{print;next}{print $0 "\t"}' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
-fi
-
-if grep -q "^${SAMPLE_NAME}" "$RUNTIME_TSV"; then
-    awk -v sample="$SAMPLE_NAME" -v job="${SLURM_JOB_NAME}" -v time="$RUNTIME_HMS" '
-        BEGIN{OFS="\t"}
-        NR==1{for(i=1;i<=NF;i++) if($i==job) col=i}
-        NR>1{if($1==sample){$col=time}}
-        {print}
-    ' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
-else
-    COLS=$(head -n1 "$RUNTIME_TSV" | awk '{print NF}')
-    NEWROW="$SAMPLE_NAME"
-    for ((i=2; i<=COLS; i++)); do
-        if [[ $(head -n1 "$RUNTIME_TSV" | cut -f$i) == "${SLURM_JOB_NAME}" ]]; then
-            NEWROW="${NEWROW}\t${RUNTIME_HMS}"
-        else
-            NEWROW="${NEWROW}\t"
-        fi
-    done
-    echo -e "$NEWROW" >> "$RUNTIME_TSV"
-fi
+awk -v sample="$SAMPLE_NAME" -v time="$RUNTIME_HMS" '
+BEGIN{OFS="\t"}
+NR==1{print; next}
+{
+    if($1==sample){$2=time; found=1}
+    print
+}
+END{
+    if(!found) print sample, time
+}
+' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
 

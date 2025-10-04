@@ -58,7 +58,7 @@ def remap_biom(in_fp, out_fp, tax2gid):
 
 def main():
     # Same TBL_DIRS as before
-    TBL_BASE = "/ddn_scratch/yac027/Bowtie2Benchmark/tables/Test1"
+    TBL_BASE = "/ddn_scratch/yac027/03_Bowtie2Benchmark/tables/Test1"
     TBL_DIRS = [
         "01_k16_no-split",
         "02_a_no-split",

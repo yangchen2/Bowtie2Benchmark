@@ -4,8 +4,8 @@
 # DESCRIPTION: Bowtie2 alignment with -k 16 of skin metaG data against WoLr2 10-partition index
 
 #SBATCH --job-name=07_k16_split10
-#SBATCH --output=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/07_k16_split10_%A_%a.out
-#SBATCH --error=/ddn_scratch/yac027/Bowtie2Benchmark/slurm_out/Test1/07_k16_split10_%A_%a.err
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/07_k16_split10_%A_%a.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/07_k16_split10_%A_%a.err
 #SBATCH --array=0-74
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
@@ -14,6 +14,7 @@
 #SBATCH --partition=short
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=yac027@ucsd.edu
+#SBATCH --chdir=/ddn_scratch/yac027/03_Bowtie2Benchmark/scripts/01_bt2_benchmark/Test1
 
 # Load/activate bowtie2 environment
 source activate bowtie2
@@ -21,14 +22,13 @@ source activate bowtie2
 # Parameters
 PARTITION_COUNT=10
 PARTITION_DIR="/ddn_scratch/y1weng/71_db_splitting/index10"
-FASTQ_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/metaG_fastq_skin"
-OUTPUT_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/sams/Test1/07_k16_split10"
-RUNTIME_DIR="/ddn_scratch/yac027/Bowtie2Benchmark/runtimes/Test1"
-RUNTIME_TSV="${RUNTIME_DIR}/runtimes.tsv"
-
+FASTQ_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/metaG_fastq_skin"
+OUTPUT_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/sams/Test1/07_k16_split10"
+RUNTIME_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/runtimes/Test1"
+RUNTIME_TSV="${RUNTIME_DIR}/${SLURM_JOB_NAME}.tsv"
 mkdir -p "$OUTPUT_DIR" "$RUNTIME_DIR"
 
-# Collect FASTQ R1 files (assuming format *_R1.fastq.gz)
+# Collect FASTQ R1 files
 FASTQ_FILES=($FASTQ_DIR/*_R1.fastq.gz)
 NUM_FILES=${#FASTQ_FILES[@]}
 
@@ -46,7 +46,7 @@ SAMPLE_NAME=$(basename "$FASTQ1" _R1.fastq.gz)
 echo "Processing sample: $SAMPLE_NAME"
 
 # ----------------------------
-# Run Bowtie2 alignments over 10 partitions + timing
+# Run Bowtie2 alignments over partitions + timing
 # ----------------------------
 START=$(date +%s)
 
@@ -78,34 +78,21 @@ RUNTIME_HMS=$(printf "%02d:%02d:%02d" $((RUNTIME/3600)) $((RUNTIME%3600/60)) $((
 echo "Completed all partitions for $SAMPLE_NAME in ${RUNTIME_HMS}"
 
 # ----------------------------
-# Update runtimes.tsv
+# Update per-job runtimes TSV
 # ----------------------------
 if [[ ! -f "$RUNTIME_TSV" ]]; then
-    echo -e "Sample\t${SLURM_JOB_NAME}" > "$RUNTIME_TSV"
+    echo -e "Sample\tRuntime" > "$RUNTIME_TSV"
 fi
 
-if ! head -n1 "$RUNTIME_TSV" | grep -qw "${SLURM_JOB_NAME}"; then
-    sed -i "1s/$/\t${SLURM_JOB_NAME}/" "$RUNTIME_TSV"
-    awk 'NR==1{print;next}{print $0 "\t"}' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
-fi
-
-if grep -q "^${SAMPLE_NAME}" "$RUNTIME_TSV"; then
-    awk -v sample="$SAMPLE_NAME" -v job="${SLURM_JOB_NAME}" -v time="$RUNTIME_HMS" '
-        BEGIN{OFS="\t"}
-        NR==1{for(i=1;i<=NF;i++) if($i==job) col=i}
-        NR>1{if($1==sample){$col=time}}
-        {print}
-    ' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
-else
-    COLS=$(head -n1 "$RUNTIME_TSV" | awk '{print NF}')
-    NEWROW="$SAMPLE_NAME"
-    for ((i=2; i<=COLS; i++)); do
-        if [[ $(head -n1 "$RUNTIME_TSV" | cut -f$i) == "${SLURM_JOB_NAME}" ]]; then
-            NEWROW="${NEWROW}\t${RUNTIME_HMS}"
-        else
-            NEWROW="${NEWROW}\t"
-        fi
-    done
-    echo -e "$NEWROW" >> "$RUNTIME_TSV"
-fi
+awk -v sample="$SAMPLE_NAME" -v time="$RUNTIME_HMS" '
+BEGIN{OFS="\t"}
+NR==1{print; next}
+{
+    if($1==sample){$2=time; found=1}
+    print
+}
+END{
+    if(!found) print sample, time
+}
+' "$RUNTIME_TSV" > "${RUNTIME_TSV}.tmp" && mv "${RUNTIME_TSV}.tmp" "$RUNTIME_TSV"
 

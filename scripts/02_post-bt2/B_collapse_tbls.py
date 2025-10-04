@@ -3,10 +3,9 @@ import os
 import sys
 import re
 from biom import load_table
-from biom.util import biom_open
 
 # Base path and dirs to process
-TBL_BASE = "/ddn_scratch/yac027/Bowtie2Benchmark/tables/Test1"
+TBL_BASE = "/ddn_scratch/yac027/03_Bowtie2Benchmark/tables/Test1"
 TBL_DIRS = [
     "01_k16_no-split",
     "02_a_no-split",
@@ -26,29 +25,19 @@ TBL_DIRS = [
 def strip_index(sample_id: str) -> str:
     return re.sub(r"_index\d+$", "", sample_id)
 
-def collapse_samples(in_fp, out_fp):
-    if not os.path.isfile(in_fp):
-        sys.stderr.write(f"[WARN] Missing file {in_fp}, skipping.\n")
-        return
-    
+def collapse_samples(in_fp, out_fp, mapping):
     tbl = load_table(in_fp)
-    sys.stderr.write(f"[INFO] Input {in_fp} shape: {tbl.shape[0]} features x {tbl.shape[1]} samples\n")
 
-    # Group by base sample name (remove _indexX if present)
-    mapping = {}
-    for sid in tbl.ids(axis="sample"):
-        sid_str = sid.decode() if isinstance(sid, bytes) else str(sid)
-        base = strip_index(sid_str)
-        mapping[sid_str] = base
+    collapsed = tbl.collapse(
+        lambda id_, md: mapping[id_],
+        axis="sample",
+        norm=False
+    )
 
-    # Collapse by summing over groups
-    collapsed = tbl.collapse(lambda id_, md: mapping[id_], axis="sample", norm=False, agg="sum")
+    with open(out_fp, "w") as f:
+        collapsed.to_json("collapsed", f)
 
-    sys.stderr.write(f"[INFO] Output {out_fp} shape: {collapsed.shape[0]} features x {collapsed.shape[1]} samples\n")
-
-    # Write output
-    with biom_open(out_fp, "w") as f:
-        collapsed.to_hdf5(f, generated_by="B_collapse_tbls.py")
+    return tbl, collapsed   # return both for logging
 
 def main():
     biom_files = ["phylum.biom", "genus.biom", "species.biom"]
@@ -61,9 +50,25 @@ def main():
 
         for biom_file in biom_files:
             in_fp = os.path.join(dir_path, biom_file)
+            if not os.path.exists(in_fp):
+                sys.stderr.write(f"[WARN] Missing file {in_fp}, skipping.\n")
+                continue
+
             base, ext = os.path.splitext(in_fp)
             out_fp = f"{base}_collapsed{ext or '.biom'}"
-            collapse_samples(in_fp, out_fp)
+
+            # Build mapping: strip _indexN suffix → collapsed sample ID
+            tbl = load_table(in_fp)
+            mapping = {sid: strip_index(sid) for sid in tbl.ids(axis="sample")}
+
+            # Collapse and log shapes
+            orig_tbl, collapsed_tbl = collapse_samples(in_fp, out_fp, mapping)
+
+            sys.stderr.write(
+                f"[INFO] Collapsing {in_fp} "
+                f"(input {orig_tbl.shape[0]} features x {orig_tbl.shape[1]} samples) "
+                f"-> (output {collapsed_tbl.shape[0]} features x {collapsed_tbl.shape[1]} samples)\n"
+            )
 
     sys.stderr.write("[DONE] Finished collapsing all tables.\n")
 

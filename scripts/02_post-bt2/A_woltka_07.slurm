@@ -1,13 +1,13 @@
 #!/bin/bash -l
 #SBATCH --job-name=woltka
-#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/A_woltka_%A_%a.out
-#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/A_woltka_%A_%a.err
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/woltka_%A_%a.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/woltka_%A_%a.err
 #SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
 #SBATCH --mail-user=yac027@ucsd.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --array=0-10
+#SBATCH --array=0-1
 #SBATCH --partition=gpu
 
 # Activate conda environment
@@ -15,18 +15,7 @@ source activate mopp
 
 # Define list of SAM directories
 SAM_DIRS=(
-  "01_k16_no-split"
-  "02_a_no-split"
-  "03_igor_no-split"
-  "04_k16_split4"
-  "05_a_split4"
-  "06_igor_split4"
   "07_k16_split10"
-  "08_a_split10"
-  "09_igor_split10"
-  "04a_k16_split4a"
-  "05a_a_split4a"
-  "06a_igor_split4a"
 )
 
 # Pick the directory for this array task
