@@ -1,0 +1,25 @@
+srun -N 1 -c 4 --mem 100G --time 04:00:00 --pty bash -l
+
+outdir="output_fna"
+mkdir -p "$outdir"
+xzcat all.fna.xz | paste - - | awk -v n=10 -v out="$outdir" '{file = out "/split_" int(1 + rand() * n) ".fna"; print $1 ORS $2 >> file}'
+
+xzcat all.fna.xz | paste - - \
+| awk -v n=10 -v out="$outdir" 'BEGIN { srand(1234) } {
+    file = out "/split_" int(1 + rand() * n) ".fna"
+    print $1 ORS $2 >> file
+}'
+
+# split 4 way
+xzcat all.fna.xz | paste - - \
+| awk -v n=4 -v out="$outdir" 'BEGIN { srand(1234) } {
+    file = out "/split_" int(1 + rand() * n) ".fna"
+    print $1 ORS $2 >> file
+}'
+
+# split 4 way run2 (with a different seed)
+xzcat /projects/wol/qiyun/wol2/genomes/all.fna.xz | paste - - \
+| awk -v n=4 -v out="$outdir" 'BEGIN { srand(5678) } {
+    file = out "./split_" int(1 + rand() * n) ".fna"
+    print $1 ORS $2 >> file
+}'
