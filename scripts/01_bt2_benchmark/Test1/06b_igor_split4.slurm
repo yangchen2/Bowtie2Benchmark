@@ -3,10 +3,11 @@
 # DATE: 10/01/25
 # DESCRIPTION: Bowtie2 (Igor branch, genome-independent mapping with -l 100 -d)
 #              of skin metagenome data against WoLr2 4-partition index
+# CHANGED -l 100 to -l 20 to compare runtime
 
-#SBATCH --job-name=06_igor_split4
-#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/06_igor_split4_%A_%a.out
-#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/06_igor_split4_%A_%a.err
+#SBATCH --job-name=06b_igor_split4
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/06b_igor_split4_%A_%a.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/06b_igor_split4_%A_%a.err
 #SBATCH --array=0-74
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
@@ -20,7 +21,7 @@
 PARTITION_COUNT=4
 PARTITION_DIR="/ddn_scratch/y1weng/71_db_splitting/index4_run1"
 FASTQ_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/metaG_fastq_skin"
-OUTPUT_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/sams/Test1/06_igor_split4"
+OUTPUT_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/sams/Test1/06b_igor_split4"
 RUNTIME_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/runtimes/Test1"
 RUNTIME_TSV="${RUNTIME_DIR}/${SLURM_JOB_NAME}.tsv"
 
@@ -65,7 +66,7 @@ for ((i=1; i<=PARTITION_COUNT; i++)); do
       --np 1 --mp "1,1" --rdg "0,1" --rfg "0,1" \
       --score-min "L,0,-0.05" \
       --no-unal \
-      -l 100 -d \
+      -l 20 -d \
       -S "$OUTFILE"
 
     if [[ $? -ne 0 ]]; then

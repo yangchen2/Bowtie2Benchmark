@@ -2,10 +2,11 @@
 # AUTHOR: Yang Chen (yac027@ucsd.edu)
 # DATE: 10/01/25
 # DESCRIPTION: Igor's Bowtie2 genome-independent read mapping of skin metaG data against WoLr2 database (no partitioning)
+# CHANGED -l 100 to -l 20 to compare runtime
 
-#SBATCH --job-name=03_igor_no-split
-#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/03_igor_no-split_%A_%a.out
-#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/03_igor_no-split_%A_%a.err
+#SBATCH --job-name=03b_igor_no-split
+#SBATCH --output=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/03b_igor_no-split_%A_%a.out
+#SBATCH --error=/ddn_scratch/yac027/03_Bowtie2Benchmark/slurm_out/Test1/03b_igor_no-split_%A_%a.err
 #SBATCH --array=0-74
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
@@ -15,11 +16,10 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=yac027@ucsd.edu
 
-
 # Set relevant paths
 REF_INDEX="/scratch/qp-woltka/WoLr2/WoLr2"
 FASTQ_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/metaG_fastq_skin"
-OUTPUT_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/sams/Test1/03_igor_no-split"
+OUTPUT_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/sams/Test1/03b_igor_no-split"
 RUNTIME_DIR="/ddn_scratch/yac027/03_Bowtie2Benchmark/runtimes/Test1"
 RUNTIME_TSV="${RUNTIME_DIR}/${SLURM_JOB_NAME}.tsv"
 mkdir -p "$OUTPUT_DIR" "$RUNTIME_DIR"
@@ -49,9 +49,9 @@ echo "Using reference index: $REF_INDEX"
 # ----------------------------
 START=$(date +%s)
 
-cd /ddn_scratch/yac027/Igor_bowtie2_test/bowtie2
+cd /ddn_scratch/yac027/03_Bowtie2Benchmark/bowtie2
 ./bowtie2 -p 16 \
-  -a -l 100 -d \
+  -a -l 20 -d \
   --no-exact-upfront --no-1mm-upfront \
   --very-sensitive \
   --seed 42 \

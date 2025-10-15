@@ -42,7 +42,8 @@ echo "Running Igor Bowtie2 on sample $SAMPLE_NAME"
 
 START=$(date +%s)
 
-cd /ddn_scratch/yac027/Igor_bowtie2_test/bowtie2
+#cd /ddn_scratch/yac027/Igor_bowtie2_test/bowtie2
+cd 
 for ((i=1; i<=PARTITION_COUNT; i++)); do
     REF_INDEX="${PARTITION_DIR}/split_${i}"
     OUTFILE="${OUTPUT_DIR}/${SAMPLE_NAME}_index${i}.sam"
