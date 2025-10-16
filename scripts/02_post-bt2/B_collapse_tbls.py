@@ -18,7 +18,10 @@ TBL_DIRS = [
     "09_igor_split10",
     "04a_k16_split4a",
     "05a_a_split4a",
-    "06a_igor_split4a"
+    "06a_igor_split4a",
+    "03b_igor_no-split",
+    "06b_igor_l20_split4",
+    "09b_igor_split10"
 ]
 
 # Pattern to strip index suffix (_index1, _index2, etc.)
