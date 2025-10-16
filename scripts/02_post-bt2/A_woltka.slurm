@@ -11,6 +11,7 @@
 #SBATCH --partition=short
 
 # Activate conda environment
+source ~/.bashrc
 source activate mopp
 
 # Define list of SAM directories
