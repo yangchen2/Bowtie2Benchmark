@@ -7,8 +7,8 @@
 #SBATCH --mem=64G
 #SBATCH --mail-user=yac027@ucsd.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --array=0-10
-#SBATCH --partition=gpu
+#SBATCH --array=0-13
+#SBATCH --partition=short
 
 # Activate conda environment
 source activate mopp
@@ -27,7 +27,11 @@ SAM_DIRS=(
   "04a_k16_split4a"
   "05a_a_split4a"
   "06a_igor_split4a"
+  "03b_igor_no-split"
+  "06b_igor_split4"
+  "09b_igor_split10"    
 )
+
 
 # Pick the directory for this array task
 SAM_DIR_BASE=${SAM_DIRS[$SLURM_ARRAY_TASK_ID]}
