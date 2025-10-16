@@ -16,7 +16,8 @@
 #SBATCH --mail-user=yac027@ucsd.edu
 
 # Activate conda environment
-source activate microbiome_base
+source ~/.bashrc
+source activate qiime2-2023.2
 
 # Path to script
 SCRIPT=/ddn_scratch/yac027/03_Bowtie2Benchmark/scripts/02_post-bt2/C_gOTU.py

@@ -10,7 +10,8 @@
 #SBATCH --mail-user=yac027@ucsd.edu
 
 # Activate QIIME2 environment
-source activate mmvec_qiime2-2020.6_barnacle2
+source ~/.bashrc
+source activate qiime2-2023.2
 
 # Base directory where your BIOM tables live
 BASE=/ddn_scratch/yac027/03_Bowtie2Benchmark/tables/Test1
