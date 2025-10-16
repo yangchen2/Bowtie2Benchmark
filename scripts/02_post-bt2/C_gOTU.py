@@ -57,7 +57,6 @@ def remap_biom(in_fp, out_fp, tax2gid):
         sys.stderr.write(f"[INFO] {missing} features in {os.path.basename(in_fp)} not found in map; left unchanged.\n")
 
 def main():
-    # Same TBL_DIRS as before
     TBL_BASE = "/ddn_scratch/yac027/03_Bowtie2Benchmark/tables/Test1"
     TBL_DIRS = [
         "01_k16_no-split",
@@ -72,8 +71,11 @@ def main():
         "04a_k16_split4a",
         "05a_a_split4a",
         "06a_igor_split4a",
+        "03b_igor_no-split",
+        "06b_igor_split4",
+        "09b_igor_split10"
     ]
-
+    
     tax2gid = load_taxid_to_gid(DEFAULT_MAP)
 
     for d in TBL_DIRS:
