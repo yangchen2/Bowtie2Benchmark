@@ -4,8 +4,8 @@
 # DESCRIPTION: Aggregate Procrustes M² and p-values for weighted and unweighted UniFrac analyses.
 
 #SBATCH --job-name=agg_procrustes_M2pval
-#SBATCH --output=../../slurm_out/agg_procrustes_M2pval_%j.out
-#SBATCH --error=../../slurm_out/agg_procrustes_M2pval_%j.err
+#SBATCH --output=../../slurm_out/F_agg_procrustes_M2pval_%j.out
+#SBATCH --error=../../slurm_out/F_agg_procrustes_M2pval_%j.err
 #SBATCH --time=01:00:00
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=8G
